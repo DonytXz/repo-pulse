@@ -93,9 +93,6 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                 ({filteredCommits.length} of {commits.length} commits)
               </span>
             </h3>
-            <p className="text-xs text-slate-400">
-              SourceTree / GitKraken-style multi-branch topological DAG
-            </p>
           </div>
         </div>
 
