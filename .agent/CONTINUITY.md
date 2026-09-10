@@ -26,6 +26,10 @@
 - [x] Automated test suite expanded: 54/54 tests passing across 11 test suites (`vitest`)
 - [x] Static build clean & zero lint errors (`oxlint`)
 - [x] Deployed live to GitHub Pages: https://donatoalvarez.dev/repo-pulse/
+- [x] Scope Expansion Documented:
+  - Technical Viability Study completed for SourceTree / GitKraken-style Git DAG Commit History Graph (9.5/10 viability rating)
+  - Updated `README.md` with visual Git DAG architecture, C4 data flow diagram, technical trade-offs, and product roadmap
+  - Prepared architectural blueprint for custom SVG topological track allocation engine (cubic bezier branch/merge connectors) and commit inspection drawer
 
 ## Betroffene Dateien
 | Datei | Zweck |
