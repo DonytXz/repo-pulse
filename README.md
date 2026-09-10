@@ -8,7 +8,7 @@
 
 > **Live Demo:** [https://donatoalvarez.dev/repo-pulse/](https://donatoalvarez.dev/repo-pulse/)
 >
-> **RepoPulse** is an in-browser analytics and telemetry platform for open-source repositories. It runs **100% client-side**, consumes GitHub's public API directly from the browser, requires **zero VPS or backend servers**, and deploys statically to **GitHub Pages**.
+> **RepoPulse** is an in-browser analytics and telemetry platform for open-source repositories. It runs **100% client-side**, consumes GitHub's public API directly from the browser.
 
 ---
 
