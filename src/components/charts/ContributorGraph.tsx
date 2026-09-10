@@ -10,6 +10,17 @@ interface ContributorGraphProps {
   onSelectContributor?: (login: string) => void
 }
 
+interface EChartsNodeParams {
+  dataType?: string
+  data: {
+    id?: string
+    name?: string
+    value?: number
+    source?: string
+    target?: string
+  }
+}
+
 export const ContributorGraph: React.FC<ContributorGraphProps> = ({
   nodes,
   links,
@@ -44,7 +55,7 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
         backgroundColor: '#0f172a',
         borderColor: '#334155',
         textStyle: { color: '#f8fafc' },
-        formatter: (params: any) => {
+        formatter: (params: EChartsNodeParams) => {
           if (params.dataType === 'node') {
             const node = nodes.find((n) => n.id === params.data.id)
             const cat = categories[node?.category ?? 3]?.name || 'Contributor'
@@ -122,8 +133,8 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
 
   const onEvents = useMemo(
     () => ({
-      click: (params: any) => {
-        if (params.dataType === 'node' && onSelectContributor) {
+      click: (params: EChartsNodeParams) => {
+        if (params.dataType === 'node' && onSelectContributor && params.data.id) {
           onSelectContributor(params.data.id)
         }
       },
@@ -142,12 +153,16 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
             Force-directed graph highlighting maintainers, community clusters, and co-authorship
           </p>
         </div>
-        <span className="text-[11px] text-slate-500 font-mono hidden sm:inline">
+        <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
           Pan &bull; Zoom &bull; Drag nodes &bull; Click to filter
         </span>
       </div>
 
-      <div className="flex-1 w-full min-h-0">
+      <div
+        role="region"
+        aria-label="Interactive Contributor Collaboration Network graph"
+        className="flex-1 w-full min-h-0"
+      >
         <ReactECharts
           option={chartOption}
           onEvents={onEvents}

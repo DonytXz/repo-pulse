@@ -31,6 +31,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
 }) => {
   const [query, setQuery] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
+  const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (isOpen) {
@@ -38,19 +39,46 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     }
   }, [isOpen])
 
-  // Global Cmd+K keyboard shortcut listener
+  // Global Cmd+K and Escape keyboard shortcut listener with focus trap
   useEffect(() => {
+    if (!isOpen) return
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault()
-        if (isOpen) onClose()
-        else {
-          // If not open, the parent will handle opening
-        }
-      } else if (e.key === 'Escape' && isOpen) {
         onClose()
+        return
+      }
+
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+        return
+      }
+
+      if (e.key === 'Tab') {
+        if (!modalRef.current) return
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
       }
     }
+
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
@@ -81,29 +109,40 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       onClick={onClose}
     >
       <div
+        ref={modalRef}
         className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden text-slate-200"
         onClick={(e) => e.stopPropagation()}
       >
+        <h2 id="cmd-title" className="sr-only">
+          Command Palette Navigation
+        </h2>
+
         <div className="relative border-b border-slate-800 px-4 py-3.5 flex items-center gap-3">
-          <Search className="w-5 h-5 text-slate-400 shrink-0" />
-          <form onSubmit={handleCustomSubmit} className="flex-1">
+          <Search className="w-5 h-5 text-slate-400 shrink-0" aria-hidden="true" />
+          <form onSubmit={handleCustomSubmit} className="flex-1" role="search">
             <input
               ref={inputRef}
-              id="cmd-title"
+              id="cmd-input"
               type="text"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value)
               }}
               placeholder="Search repo, paste URL (e.g. https://github.com/...) or command..."
-              className="w-full bg-transparent border-none text-white placeholder-slate-500 text-sm focus:outline-hidden"
+              aria-label="Search repositories or commands"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
+              className="w-full bg-transparent border-none text-white placeholder-slate-400 text-sm focus:outline-hidden"
             />
           </form>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+            aria-label="Close command palette"
+            className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
 
@@ -111,114 +150,122 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
           {/* Direct search hint */}
           {query.trim() && !FEATURED_REPOSITORIES.some((r) => r.name.toLowerCase() === query.trim().toLowerCase()) && (
             <div>
-              <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+              <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
                 Custom Repository Search
               </div>
-              <div
+              <button
+                type="button"
                 onClick={() => {
                   onSelectRepo(normalizeRepoInput(query.trim()), false)
                   onClose()
                 }}
-                className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center justify-between cursor-pointer text-cyan-400 font-medium"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center justify-between cursor-pointer text-cyan-400 font-medium focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400"
               >
                 <span>Analyze "{normalizeRepoInput(query.trim())}" on GitHub</span>
                 <span className="text-[10px] font-mono text-slate-400">Press Enter</span>
-              </div>
+              </button>
             </div>
           )}
 
           {/* Quick Actions */}
           <div>
-            <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Quick Actions & Settings
             </div>
             <div className="space-y-1">
-              <div
+              <button
+                type="button"
                 onClick={() => {
                   onToggleDemo()
                   onClose()
                 }}
-                className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-3 cursor-pointer text-slate-300 hover:text-white"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-3 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-400 transition-colors"
               >
-                <Sparkles className="w-4 h-4 text-purple-400" />
+                <Sparkles className="w-4 h-4 text-purple-400 shrink-0" aria-hidden="true" />
                 <span>Toggle Offline Demo Snapshot Mode</span>
-              </div>
-              <div
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   onOpenTokenModal()
                   onClose()
                 }}
-                className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-3 cursor-pointer text-slate-300 hover:text-white"
+                className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-3 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 transition-colors"
               >
-                <Key className="w-4 h-4 text-cyan-400" />
+                <Key className="w-4 h-4 text-cyan-400 shrink-0" aria-hidden="true" />
                 <span>Configure GitHub Personal Access Token (PAT)</span>
-              </div>
+              </button>
             </div>
           </div>
 
           {/* Navigate Views */}
           <div>
-            <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Telemetry Views
             </div>
             <div className="grid grid-cols-2 gap-1">
-              <div
+              <button
+                type="button"
                 onClick={() => {
                   onSelectTab('overview')
                   onClose()
                 }}
-                className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white"
+                className="text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 transition-colors"
               >
-                <LayoutGrid className="w-3.5 h-3.5 text-cyan-400" />
+                <LayoutGrid className="w-3.5 h-3.5 text-cyan-400 shrink-0" aria-hidden="true" />
                 <span>Overview & Heatmap</span>
-              </div>
-              <div
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   onSelectTab('network')
                   onClose()
                 }}
-                className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white"
+                className="text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-400 transition-colors"
               >
-                <GitFork className="w-3.5 h-3.5 text-purple-400" />
+                <GitFork className="w-3.5 h-3.5 text-purple-400 shrink-0" aria-hidden="true" />
                 <span>Contributor Network</span>
-              </div>
-              <div
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   onSelectTab('velocity')
                   onClose()
                 }}
-                className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white"
+                className="text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400 transition-colors"
               >
-                <LayoutGrid className="w-3.5 h-3.5 text-amber-400" />
+                <LayoutGrid className="w-3.5 h-3.5 text-amber-400 shrink-0" aria-hidden="true" />
                 <span>PR Velocity</span>
-              </div>
-              <div
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   onSelectTab('burndown')
                   onClose()
                 }}
-                className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white"
+                className="text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-400 transition-colors"
               >
-                <LayoutGrid className="w-3.5 h-3.5 text-emerald-400" />
+                <LayoutGrid className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
                 <span>Issue Burndown</span>
-              </div>
+              </button>
             </div>
           </div>
 
           {/* Featured Repositories */}
           <div>
-            <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               Flagship Repositories
             </div>
             <div className="space-y-1">
               {filteredRepos.map((repo) => (
-                <div
+                <button
+                  type="button"
                   key={repo.name}
                   onClick={() => {
                     onSelectRepo(repo.name, false)
                     onClose()
                   }}
-                  className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center justify-between gap-3 cursor-pointer text-slate-300 hover:text-white transition-colors"
+                  className="w-full text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center justify-between gap-3 cursor-pointer text-slate-300 hover:text-white transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <svg className="w-4 h-4 fill-current text-slate-400 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -229,14 +276,14 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
                       <div className="text-[11px] text-slate-400 truncate">{repo.desc}</div>
                     </div>
                   </div>
-                  <span className="text-[10px] text-slate-500 font-mono shrink-0">Select</span>
-                </div>
+                  <span className="text-[10px] text-slate-400 font-mono shrink-0">Select</span>
+                </button>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="border-t border-slate-800 px-4 py-2 bg-slate-950/60 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+        <div className="border-t border-slate-800 px-4 py-2 bg-slate-950/60 flex items-center justify-between text-[11px] text-slate-400 font-mono">
           <span>Tip: Esc to exit &bull; Cmd+K to toggle anytime</span>
           <span>RepoPulse v1.0</span>
         </div>

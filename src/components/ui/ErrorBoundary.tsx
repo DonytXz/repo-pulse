@@ -18,9 +18,12 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   const isRateLimit = (error as GitHubApiError).isRateLimit
 
   return (
-    <div className="max-w-2xl mx-auto my-12 p-6 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl text-center space-y-4">
+    <div
+      role="alert"
+      className="max-w-2xl mx-auto my-12 p-6 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl text-center space-y-4"
+    >
       <div className="w-12 h-12 mx-auto rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
-        <AlertCircle className="w-6 h-6" />
+        <AlertCircle className="w-6 h-6" aria-hidden="true" />
       </div>
 
       <div className="space-y-1">
@@ -34,26 +37,29 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 
       <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
         <button
+          type="button"
           onClick={onSwitchToDemo}
-          className="px-4 py-2 rounded-xl bg-purple-500 hover:bg-purple-400 text-slate-950 font-semibold text-xs transition-all flex items-center gap-2 shadow-lg shadow-purple-500/20 cursor-pointer"
+          className="px-4 py-2 rounded-xl bg-purple-500 hover:bg-purple-400 text-slate-950 font-semibold text-xs transition-colors flex items-center gap-2 shadow-lg shadow-purple-500/20 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-300"
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4" aria-hidden="true" />
           <span>Explore Demo Snapshot (Zero API Calls)</span>
         </button>
 
         <button
+          type="button"
           onClick={onOpenTokenModal}
-          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition-all flex items-center gap-2 border border-slate-700 cursor-pointer"
+          className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs transition-colors flex items-center gap-2 border border-slate-700 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400"
         >
-          <Key className="w-4 h-4 text-cyan-400" />
+          <Key className="w-4 h-4 text-cyan-400" aria-hidden="true" />
           <span>Add Free GitHub Token (5,000 reqs/hr)</span>
         </button>
 
         <button
+          type="button"
           onClick={onRetry}
-          className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-medium text-xs transition-all flex items-center gap-2 border border-slate-800 cursor-pointer"
+          className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-medium text-xs transition-colors flex items-center gap-2 border border-slate-800 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-slate-400"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Retry</span>
         </button>
       </div>

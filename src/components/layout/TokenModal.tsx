@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { getStoredToken, setStoredToken, checkRateLimit } from '../../api/client'
 import { X, Key, ShieldCheck, ExternalLink, Check, AlertCircle } from 'lucide-react'
 
@@ -13,6 +13,52 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
   const [hasExistingToken, setHasExistingToken] = useState(() => !!getStoredToken())
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [isValidating, setIsValidating] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+        return
+      }
+
+      if (e.key === 'Tab') {
+        if (!modalRef.current) return
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    const timer = setTimeout(() => {
+      const inputEl = modalRef.current?.querySelector<HTMLInputElement>('#token-input')
+      inputEl?.focus()
+    }, 50)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      clearTimeout(timer)
+    }
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
@@ -56,24 +102,28 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
     <div
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-labelledby="token-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200"
     >
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-200">
+      <div
+        ref={modalRef}
+        className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 text-slate-200"
+      >
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400"
           aria-label="Close dialog"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
 
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-            <Key className="w-5 h-5" />
+            <Key className="w-5 h-5" aria-hidden="true" />
           </div>
           <div>
-            <h2 id="modal-title" className="text-lg font-semibold text-white">
+            <h2 id="token-modal-title" className="text-lg font-semibold text-white">
               GitHub API Personal Access Token
             </h2>
             <p className="text-xs text-slate-400">
@@ -85,7 +135,7 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
         <div className="space-y-4 text-sm">
           <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2">
             <div className="flex items-center gap-2 text-xs font-medium text-cyan-400">
-              <ShieldCheck className="w-4 h-4" />
+              <ShieldCheck className="w-4 h-4" aria-hidden="true" />
               <span>Zero-Backend Security Assurance</span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -104,7 +154,7 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
                 placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-hidden focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all font-mono"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-hidden focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors font-mono"
               />
               <div className="mt-1.5 flex justify-between items-center text-xs text-slate-400">
                 <span>No scopes required for public repositories</span>
@@ -112,15 +162,16 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
                   href="https://github.com/settings/tokens/new?description=RepoPulse%20Client&scopes=public_repo"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1"
+                  className="text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 focus-visible:outline-hidden focus-visible:underline"
                 >
-                  Generate Token <ExternalLink className="w-3 h-3" />
+                  Generate Token <ExternalLink className="w-3 h-3" aria-hidden="true" />
                 </a>
               </div>
             </div>
 
             {statusMessage && (
               <div
+                role="status"
                 className={`p-3 rounded-xl text-xs flex items-center gap-2 ${
                   statusMessage.type === 'success'
                     ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
@@ -128,9 +179,9 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
                 }`}
               >
                 {statusMessage.type === 'success' ? (
-                  <Check className="w-4 h-4 shrink-0 text-emerald-400" />
+                  <Check className="w-4 h-4 shrink-0 text-emerald-400" aria-hidden="true" />
                 ) : (
-                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" aria-hidden="true" />
                 )}
                 <span>{statusMessage.text}</span>
               </div>
@@ -141,7 +192,7 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="px-3 py-2 text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                  className="px-3 py-2 text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-400"
                 >
                   Remove Token
                 </button>
@@ -153,14 +204,14 @@ export const TokenModal: React.FC<TokenModalProps> = ({ isOpen, onClose, onToken
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-slate-400"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isValidating}
-                  className="px-4 py-2 text-xs font-medium bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold rounded-xl transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 cursor-pointer"
+                  className="px-4 py-2 text-xs font-medium bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold rounded-xl transition-colors shadow-lg shadow-cyan-500/20 disabled:opacity-50 cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-300"
                 >
                   {isValidating ? 'Validating...' : 'Save & Verify'}
                 </button>

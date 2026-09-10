@@ -122,7 +122,11 @@ export const VelocityChart: React.FC<VelocityChartProps> = ({
           </p>
         </div>
       </div>
-      <div className="flex-1 w-full min-h-0">
+      <div
+        role="region"
+        aria-label="Pull request velocity and merge throughput chart"
+        className="flex-1 w-full min-h-0"
+      >
         <ReactECharts
           option={chartOption}
           style={{ width: '100%', height: '100%' }}

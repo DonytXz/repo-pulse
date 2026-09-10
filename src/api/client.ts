@@ -93,7 +93,9 @@ export async function fetchGitHub<T>(endpoint: string): Promise<T> {
   updateRateLimitFromHeaders(response.headers)
 
   if (!response.ok) {
-    const isRateLimit = response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0'
+    const isRateLimit =
+      (response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0') ||
+      response.status === 429
     const resetHeader = response.headers.get('x-ratelimit-reset')
     const resetTime = resetHeader ? new Date(parseInt(resetHeader, 10) * 1000) : undefined
 
@@ -109,6 +111,10 @@ export async function fetchGitHub<T>(endpoint: string): Promise<T> {
 
     if (isRateLimit) {
       errorMessage = `GitHub API rate limit exceeded. Resets at ${resetTime ? resetTime.toLocaleTimeString() : 'the next hour'}. Add a Personal Access Token to elevate your rate limit to 5,000 reqs/hr.`
+    } else if (response.status === 401) {
+      errorMessage = 'Invalid or expired GitHub Personal Access Token. Please verify your token in the token settings.'
+    } else if (response.status === 404) {
+      errorMessage = 'Repository not found on GitHub. Please check the spelling of owner/repository.'
     }
 
     throw new GitHubApiError(errorMessage, response.status, isRateLimit, resetTime)

@@ -6,6 +6,10 @@ interface CommitHeatmapProps {
   data: Array<[string, number]> // [YYYY-MM-DD, count]
 }
 
+interface EChartsHeatmapParam {
+  data?: [string, number]
+}
+
 export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
   // Extract distinct available years from commit data
   const availableYears = useMemo(() => {
@@ -75,7 +79,7 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
         backgroundColor: '#0f172a',
         borderColor: '#334155',
         textStyle: { color: '#f8fafc' },
-        formatter: (p: any) => {
+        formatter: (p: EChartsHeatmapParam) => {
           const val = p.data
           if (!val) return ''
           const count = val[1]
@@ -99,7 +103,7 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
         text: ['More', 'Less'],
         textGap: 8,
         textStyle: {
-          color: '#64748b',
+          color: '#94a3b8',
           fontSize: 10,
         },
         inRange: {
@@ -127,7 +131,7 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
         dayLabel: {
           firstDay: 1,
           nameMap: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-          color: '#64748b',
+          color: '#94a3b8',
           fontSize: 10,
         },
         splitLine: {
@@ -155,30 +159,36 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-emerald-400" />
+              <Calendar className="w-4 h-4 text-emerald-400" aria-hidden="true" />
               Commit Activity Heatmap
             </h3>
-            <span className="text-xs text-slate-500">&bull;</span>
+            <span className="text-xs text-slate-400">&bull;</span>
             <span className="text-xs text-slate-400">
-              {periodCommits} commit{periodCommits === 1 ? '' : 's'} in selected period ({data.reduce((a, b) => a + b[1], 0)} total)
+              <span className="tabular-nums font-mono">{periodCommits}</span> commit{periodCommits === 1 ? '' : 's'} in selected period (<span className="tabular-nums font-mono">{data.reduce((a, b) => a + b[1], 0)}</span> total)
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-0.5">
+          <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-0.5">
             <span className="flex items-center gap-1">
-              <Flame className="w-3 h-3 text-amber-400" />
-              {activeDays} active day{activeDays === 1 ? '' : 's'}
+              <Flame className="w-3 h-3 text-amber-400" aria-hidden="true" />
+              <span className="tabular-nums font-mono">{activeDays}</span> active day{activeDays === 1 ? '' : 's'}
             </span>
             <span>&bull;</span>
-            <span>Max {maxDayCommits} commits / day</span>
+            <span>Max <span className="tabular-nums font-mono">{maxDayCommits}</span> commits / day</span>
           </div>
         </div>
 
         {/* Year / Window Selector Pills */}
         {availableYears.length > 0 && (
-          <div className="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 p-1 rounded-xl self-start sm:self-auto overflow-x-auto max-w-full">
+          <div
+            role="group"
+            aria-label="Commit activity timeframe filters"
+            className="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 p-1 rounded-xl self-start sm:self-auto overflow-x-auto max-w-full"
+          >
             <button
+              type="button"
               onClick={() => setSelectedTimeframe('recent')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+              aria-pressed={selectedTimeframe === 'recent'}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 selectedTimeframe === 'recent'
                   ? 'bg-emerald-500 text-slate-950 font-semibold shadow-xs shadow-emerald-500/20'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -189,9 +199,11 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
 
             {availableYears.map((year) => (
               <button
+                type="button"
                 key={year}
                 onClick={() => setSelectedTimeframe(year)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                aria-pressed={selectedTimeframe === year}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                   selectedTimeframe === year
                     ? 'bg-emerald-500 text-slate-950 font-semibold shadow-xs shadow-emerald-500/20'
                     : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -205,7 +217,11 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
       </div>
 
       {/* Chart Canvas */}
-      <div className="flex-1 w-full min-h-[170px]">
+      <div
+        role="region"
+        aria-label="Commit activity calendar heatmap"
+        className="flex-1 w-full min-h-[170px]"
+      >
         <ReactECharts
           option={chartOption}
           style={{ width: '100%', height: '170px' }}

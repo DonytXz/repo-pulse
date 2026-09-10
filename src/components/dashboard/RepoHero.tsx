@@ -124,26 +124,33 @@ export const RepoHero: React.FC<RepoHeroProps> = ({
       </div>
 
       {/* Tabs navigation */}
-      <div className="mt-6 pt-4 border-t border-slate-800 flex items-center gap-2 overflow-x-auto">
-        {tabs.map((tab) => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => onSelectTab(tab.id)}
-              className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
-                isActive
-                  ? 'bg-cyan-500 text-slate-950 font-semibold shadow-md shadow-cyan-500/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
-              }`}
-            >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
-              <span>{tab.label}</span>
-            </button>
-          )
-        })}
-      </div>
+      <nav aria-label="Repository Telemetry Views" className="mt-6 pt-4 border-t border-slate-800">
+        <div role="tablist" className="flex items-center gap-2 overflow-x-auto">
+          {tabs.map((tab) => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                type="button"
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={isActive}
+                aria-controls={isActive ? `tabpanel-${tab.id}` : undefined}
+                key={tab.id}
+                onClick={() => onSelectTab(tab.id)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-medium flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                  isActive
+                    ? 'bg-cyan-500 text-slate-950 font-semibold shadow-md shadow-cyan-500/20'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} aria-hidden="true" />
+                <span>{tab.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </nav>
     </div>
   )
 }

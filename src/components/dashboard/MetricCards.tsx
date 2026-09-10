@@ -30,17 +30,24 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ metrics }) => {
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-400">Ecosystem Health</span>
           <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
-            <Shield className="w-4 h-4" />
+            <Shield className="w-4 h-4" aria-hidden="true" />
           </div>
         </div>
         <div className="my-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold tracking-tight text-white font-mono">
+            <span className="text-3xl font-bold tracking-tight text-white font-mono tabular-nums">
               {summary.healthScore}
             </span>
-            <span className="text-xs text-slate-500">/ 100</span>
+            <span className="text-xs text-slate-400">/ 100</span>
           </div>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+          <div
+            role="progressbar"
+            aria-valuenow={summary.healthScore}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Ecosystem Health Score"
+            className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden"
+          >
             <div
               className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full transition-all duration-500"
               style={{ width: `${summary.healthScore}%` }}
@@ -59,12 +66,12 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ metrics }) => {
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-400">Bus Factor Resilience</span>
           <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400">
-            <Users className="w-4 h-4" />
+            <Users className="w-4 h-4" aria-hidden="true" />
           </div>
         </div>
         <div className="my-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold tracking-tight text-white font-mono">
+            <span className="text-3xl font-bold tracking-tight text-white font-mono tabular-nums">
               {summary.busFactor}
             </span>
             <span className="text-xs text-slate-400">maintainers (50% code)</span>
@@ -73,8 +80,8 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ metrics }) => {
             Risk Assessment: <strong className={busFactorRisk.color}>{busFactorRisk.label}</strong>
           </p>
         </div>
-        <div className="flex items-center gap-1 text-[11px] text-slate-500">
-          <AlertTriangle className="w-3 h-3" />
+        <div className="flex items-center gap-1 text-[11px] text-slate-400">
+          <AlertTriangle className="w-3 h-3" aria-hidden="true" />
           <span>Calculated across active authors</span>
         </div>
       </div>
@@ -84,12 +91,12 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ metrics }) => {
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-400">PR Velocity Turnaround</span>
           <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
-            <Clock className="w-4 h-4" />
+            <Clock className="w-4 h-4" aria-hidden="true" />
           </div>
         </div>
         <div className="my-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold tracking-tight text-white font-mono">
+            <span className="text-3xl font-bold tracking-tight text-white font-mono tabular-nums">
               {summary.avgMergeTimeHours > 48
                 ? `${Math.round((summary.avgMergeTimeHours / 24) * 10) / 10}d`
                 : `${summary.avgMergeTimeHours}h`}
@@ -97,10 +104,10 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ metrics }) => {
             <span className="text-xs text-slate-400">avg to merge</span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Merge Success Rate: <strong className="text-white font-mono">{summary.prMergeRate}%</strong>
+            Merge Success Rate: <strong className="text-white font-mono tabular-nums">{summary.prMergeRate}%</strong>
           </p>
         </div>
-        <div className="flex items-center justify-between text-[11px] text-slate-500">
+        <div className="flex items-center justify-between text-[11px] text-slate-400">
           <span>{metrics.pullRequests.length} recent pull requests</span>
         </div>
       </div>
@@ -110,29 +117,29 @@ export const MetricCards: React.FC<MetricCardsProps> = ({ metrics }) => {
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-400">Issue Resolution Cadence</span>
           <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
-            <CheckCircle2 className="w-4 h-4" />
+            <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
           </div>
         </div>
         <div className="my-3">
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-bold tracking-tight text-white font-mono">
+            <span className="text-3xl font-bold tracking-tight text-white font-mono tabular-nums">
               {summary.issueResolutionRate}%
             </span>
             <span className="text-xs text-slate-400">resolved tickets</span>
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
             <span className="flex items-center gap-1">
-              <Star className="w-3 h-3 text-amber-400" />
-              {(repository.stargazers_count / 1000).toFixed(1)}k
+              <Star className="w-3 h-3 text-amber-400" aria-hidden="true" />
+              <span className="tabular-nums">{(repository.stargazers_count / 1000).toFixed(1)}k</span>
             </span>
             <span className="flex items-center gap-1">
-              <GitFork className="w-3 h-3 text-blue-400" />
-              {(repository.forks_count / 1000).toFixed(1)}k
+              <GitFork className="w-3 h-3 text-blue-400" aria-hidden="true" />
+              <span className="tabular-nums">{(repository.forks_count / 1000).toFixed(1)}k</span>
             </span>
           </div>
         </div>
-        <div className="flex items-center justify-between text-[11px] text-slate-500">
-          <span>{repository.open_issues_count.toLocaleString()} open backlog items</span>
+        <div className="flex items-center justify-between text-[11px] text-slate-400">
+          <span className="tabular-nums">{repository.open_issues_count.toLocaleString()} open backlog items</span>
         </div>
       </div>
     </div>

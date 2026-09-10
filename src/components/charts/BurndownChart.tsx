@@ -98,7 +98,11 @@ export const BurndownChart: React.FC<BurndownChartProps> = ({
           </p>
         </div>
       </div>
-      <div className="flex-1 w-full min-h-0">
+      <div
+        role="region"
+        aria-label="Issue burndown and backlog resolution chart"
+        className="flex-1 w-full min-h-0"
+      >
         <ReactECharts
           option={chartOption}
           style={{ width: '100%', height: '100%' }}
