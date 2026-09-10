@@ -10,20 +10,21 @@ import {
 import { computeRepoMetrics } from '../utils/metrics'
 import { MOCK_METRICS } from '../api/mockData'
 import type { RepoMetrics } from '../api/types'
+import { normalizeRepoInput } from '../utils/repoParser'
 
 export function useRepoData(repoFullName: string, isDemo: boolean) {
   return useQuery<RepoMetrics, GitHubApiError>({
-    queryKey: ['repoMetrics', repoFullName, isDemo],
+    queryKey: ['repoMetrics', normalizeRepoInput(repoFullName), isDemo],
     queryFn: async () => {
       if (isDemo) {
         // Return pre-bundled offline fixture immediately
         return MOCK_METRICS
       }
 
-      const clean = repoFullName.trim().replace(/^https?:\/\/github\.com\//, '')
+      const clean = normalizeRepoInput(repoFullName)
       const parts = clean.split('/')
       if (parts.length !== 2 || !parts[0] || !parts[1]) {
-        throw new Error('Please enter a valid GitHub repository in "owner/repo" format (e.g. facebook/react).')
+        throw new Error('Please enter a valid GitHub repository in "owner/repo" or "https://github.com/owner/repo" format.')
       }
 
       const [owner, repo] = parts

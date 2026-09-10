@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { normalizeRepoInput } from '../utils/repoParser'
 
 export interface UrlState {
   repo: string
@@ -17,7 +18,8 @@ export function parseUrlState(): UrlState {
   if (typeof window === 'undefined') return DEFAULT_STATE
   const params = new URLSearchParams(window.location.search)
 
-  const repo = params.get('repo') || DEFAULT_STATE.repo
+  const rawRepo = params.get('repo')
+  const repo = rawRepo ? normalizeRepoInput(rawRepo) : DEFAULT_STATE.repo
   const tabParam = params.get('tab')
   const validTabs: UrlState['tab'][] = ['overview', 'network', 'velocity', 'burndown', 'contributors']
   const tab = validTabs.includes(tabParam as UrlState['tab']) ? (tabParam as UrlState['tab']) : DEFAULT_STATE.tab
@@ -45,7 +47,7 @@ export function useUrlState() {
       const next = { ...prev, ...nextChanges }
 
       const params = new URLSearchParams()
-      if (next.repo) params.set('repo', next.repo)
+      if (next.repo) params.set('repo', normalizeRepoInput(next.repo))
       if (next.tab && next.tab !== 'overview') params.set('tab', next.tab)
       if (next.isDemo) params.set('demo', 'true')
       if (next.highlightedUser) params.set('user', next.highlightedUser)

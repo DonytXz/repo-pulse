@@ -48,6 +48,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200">
       <Header
+        key={urlState.repo}
         currentRepo={urlState.repo}
         isDemo={urlState.isDemo}
         onSelectRepo={handleSelectRepo}

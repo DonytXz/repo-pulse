@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Activity, Search, Sparkles, Command } from 'lucide-react'
 import { RateLimitBadge } from './RateLimitBadge'
+import { normalizeRepoInput } from '../../utils/repoParser'
 
 interface HeaderProps {
   currentRepo: string
@@ -24,7 +25,9 @@ export const Header: React.FC<HeaderProps> = ({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchInput.trim()) {
-      onSelectRepo(searchInput.trim(), false)
+      const normalized = normalizeRepoInput(searchInput.trim())
+      onSelectRepo(normalized, false)
+      setSearchInput(normalized)
     }
   }
 
@@ -78,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search repository (e.g. facebook/react)..."
+              placeholder="Search repo or paste URL (e.g. https://github.com/...)..."
               className="w-full pl-10 pr-20 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all"
             />
             <button

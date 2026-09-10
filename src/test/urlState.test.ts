@@ -31,4 +31,11 @@ describe('URL State Serialization & Parsing', () => {
     expect(state.repo).toBe('vitejs/vite')
     expect(state.tab).toBe('overview')
   })
+
+  it('normalizes full GitHub URLs passed via query params', () => {
+    window.history.pushState(null, '', '/?repo=https://github.com/DonytXz/Pokedex-React')
+    const state = parseUrlState()
+
+    expect(state.repo).toBe('DonytXz/Pokedex-React')
+  })
 })

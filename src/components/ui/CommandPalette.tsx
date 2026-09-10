@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Search, LayoutGrid, GitFork, Sparkles, Key, X } from 'lucide-react'
+import { normalizeRepoInput } from '../../utils/repoParser'
 
 interface CommandPaletteProps {
   isOpen: boolean
@@ -65,7 +66,8 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (query.trim()) {
-      onSelectRepo(query.trim(), false)
+      const normalized = normalizeRepoInput(query.trim())
+      onSelectRepo(normalized, false)
       onClose()
     }
   }
@@ -93,7 +95,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               onChange={(e) => {
                 setQuery(e.target.value)
               }}
-              placeholder="Search repository or type a command..."
+              placeholder="Search repo, paste URL (e.g. https://github.com/...) or command..."
               className="w-full bg-transparent border-none text-white placeholder-slate-500 text-sm focus:outline-hidden"
             />
           </form>
@@ -114,12 +116,12 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               </div>
               <div
                 onClick={() => {
-                  onSelectRepo(query.trim(), false)
+                  onSelectRepo(normalizeRepoInput(query.trim()), false)
                   onClose()
                 }}
                 className="px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center justify-between cursor-pointer text-cyan-400 font-medium"
               >
-                <span>Analyze "{query.trim()}" on GitHub</span>
+                <span>Analyze "{normalizeRepoInput(query.trim())}" on GitHub</span>
                 <span className="text-[10px] font-mono text-slate-400">Press Enter</span>
               </div>
             </div>
