@@ -1,4 +1,13 @@
-import type { CommitItem, Contributor, IssueItem, PullRequestItem, RepositoryInfo, RepoMetrics } from './types'
+import type {
+  CommitItem,
+  Contributor,
+  IssueItem,
+  PullRequestItem,
+  RepositoryInfo,
+  RepoMetrics,
+  BranchInfo,
+  CommitDetail,
+} from './types'
 import { computeRepoMetrics } from '../utils/metrics'
 
 export const MOCK_REPOSITORY: RepositoryInfo = {
@@ -46,26 +55,198 @@ export const MOCK_CONTRIBUTORS: Contributor[] = [
   { id: 15, login: 'chenglou', avatar_url: 'https://avatars.githubusercontent.com/u/1909539?v=4', html_url: 'https://github.com/chenglou', contributions: 180, type: 'User' },
 ]
 
-export const MOCK_COMMITS: CommitItem[] = [
-  ...generateMockCommits('gaearon', 28),
-  ...generateMockCommits('acdlite', 24),
-  ...generateMockCommits('sebmarkbage', 18),
-  ...generateMockCommits('sophiebits', 15),
-  ...generateMockCommits('bvaughn', 15),
+export const MOCK_BRANCHES: BranchInfo[] = [
+  { name: 'main', commit: { sha: 'c_merge_01' }, protected: true },
+  { name: 'feat/compiler', commit: { sha: 'c_comp_02' }, protected: false },
+  { name: 'fix/ssr-hydration', commit: { sha: 'c_hydr_02' }, protected: false },
 ]
 
-function generateMockCommits(login: string, count: number): CommitItem[] {
-  const commits: CommitItem[] = []
-  const now = Date.now()
-  for (let i = 0; i < count; i++) {
-    const pastDays = Math.floor(Math.random() * 90)
-    const date = new Date(now - pastDays * 86400000).toISOString()
-    commits.push({
-      sha: `c${login.slice(0, 3)}${Math.random().toString(16).substring(2, 8)}`,
+export const MOCK_COMMIT_DETAIL: CommitDetail = {
+  sha: 'c_merge_01',
+  parents: [{ sha: 'c_main_01' }, { sha: 'c_comp_02' }],
+  commit: {
+    author: { name: 'acdlite', email: 'acdlite@fb.com', date: '2025-01-14T14:30:00Z' },
+    committer: { name: 'GitHub', email: 'noreply@github.com', date: '2025-01-14T14:30:00Z' },
+    message: 'Merge pull request #31050 from facebook/feat/compiler\n\nEnable memoization passes for async components in React 19',
+    verification: { verified: true, reason: 'valid' },
+  },
+  author: {
+    login: 'acdlite',
+    id: 3624098,
+    avatar_url: 'https://avatars.githubusercontent.com/u/3624098?v=4',
+  },
+  stats: {
+    total: 342,
+    additions: 295,
+    deletions: 47,
+  },
+  files: [
+    {
+      sha: 'f101',
+      filename: 'packages/react-compiler/src/index.ts',
+      status: 'modified',
+      additions: 120,
+      deletions: 12,
+      changes: 132,
+      patch: '@@ -42,8 +42,12 @@ export function compileComponent(fn) {\n+  optimizeMemoizationScope(fn);\n+  validateAsyncDependencies(fn);\n }',
+    },
+    {
+      sha: 'f102',
+      filename: 'packages/react-reconciler/src/ReactFiberWorkLoop.ts',
+      status: 'modified',
+      additions: 85,
+      deletions: 25,
+      changes: 110,
+    },
+    {
+      sha: 'f103',
+      filename: 'packages/react-compiler/__tests__/compiler-test.ts',
+      status: 'added',
+      additions: 90,
+      deletions: 10,
+      changes: 100,
+    },
+  ],
+}
+
+export const MOCK_COMMITS: CommitItem[] = generateMockCommits()
+
+function generateMockCommits(): CommitItem[] {
+  // 1. Handcrafted topological DAG sequence showing branches and merges
+  const dag: CommitItem[] = [
+    {
+      sha: 'c_merge_01',
+      parents: [{ sha: 'c_main_01' }, { sha: 'c_comp_02' }],
+      commit: {
+        author: { name: 'acdlite', email: 'acdlite@fb.com', date: '2025-01-14T14:30:00Z' },
+        committer: { name: 'GitHub', email: 'noreply@github.com', date: '2025-01-14T14:30:00Z' },
+        message: 'Merge pull request #31050 from facebook/feat/compiler\n\nEnable memoization passes for async components in React 19',
+        verification: { verified: true },
+      },
+      author: { login: 'acdlite', id: 3624098, avatar_url: 'https://avatars.githubusercontent.com/u/3624098?v=4' },
+    },
+    {
+      sha: 'c_comp_02',
+      parents: [{ sha: 'c_comp_01' }],
+      commit: {
+        author: { name: 'acdlite', email: 'acdlite@fb.com', date: '2025-01-13T18:20:00Z' },
+        committer: { name: 'acdlite', email: 'acdlite@fb.com', date: '2025-01-13T18:20:00Z' },
+        message: 'feat(compiler): optimize react compiler dead code elimination pass',
+      },
+      author: { login: 'acdlite', id: 3624098, avatar_url: 'https://avatars.githubusercontent.com/u/3624098?v=4' },
+    },
+    {
+      sha: 'c_main_01',
+      parents: [{ sha: 'c_merge_02' }],
+      commit: {
+        author: { name: 'gaearon', email: 'dan@fb.com', date: '2025-01-12T11:00:00Z' },
+        committer: { name: 'gaearon', email: 'dan@fb.com', date: '2025-01-12T11:00:00Z' },
+        message: 'release: prepare React 19.0.0 changelog and migration guide',
+      },
+      author: { login: 'gaearon', id: 810438, avatar_url: 'https://avatars.githubusercontent.com/u/810438?v=4' },
+    },
+    {
+      sha: 'c_comp_01',
+      parents: [{ sha: 'c_main_02' }],
+      commit: {
+        author: { name: 'acdlite', email: 'acdlite@fb.com', date: '2025-01-11T16:45:00Z' },
+        committer: { name: 'acdlite', email: 'acdlite@fb.com', date: '2025-01-11T16:45:00Z' },
+        message: 'feat(compiler): initial babel transform passes for server components',
+      },
+      author: { login: 'acdlite', id: 3624098, avatar_url: 'https://avatars.githubusercontent.com/u/3624098?v=4' },
+    },
+    {
+      sha: 'c_merge_02',
+      parents: [{ sha: 'c_main_02' }, { sha: 'c_hydr_02' }],
+      commit: {
+        author: { name: 'sebmarkbage', email: 'seb@fb.com', date: '2025-01-10T15:30:00Z' },
+        committer: { name: 'GitHub', email: 'noreply@github.com', date: '2025-01-10T15:30:00Z' },
+        message: 'Merge pull request #31051 from facebook/fix/hydration\n\nHydrate nested Suspense boundaries gracefully',
+        verification: { verified: true },
+      },
+      author: { login: 'sebmarkbage', id: 63648, avatar_url: 'https://avatars.githubusercontent.com/u/63648?v=4' },
+    },
+    {
+      sha: 'c_hydr_02',
+      parents: [{ sha: 'c_hydr_01' }],
+      commit: {
+        author: { name: 'sebmarkbage', email: 'seb@fb.com', date: '2025-01-09T14:15:00Z' },
+        committer: { name: 'sebmarkbage', email: 'seb@fb.com', date: '2025-01-09T14:15:00Z' },
+        message: 'fix(ssr): handle selective hydration queue priority in transitions',
+      },
+      author: { login: 'sebmarkbage', id: 63648, avatar_url: 'https://avatars.githubusercontent.com/u/63648?v=4' },
+    },
+    {
+      sha: 'c_main_02',
+      parents: [{ sha: 'c_main_03' }],
+      commit: {
+        author: { name: 'rickhanlonii', email: 'rick@fb.com', date: '2025-01-08T10:10:00Z' },
+        committer: { name: 'rickhanlonii', email: 'rick@fb.com', date: '2025-01-08T10:10:00Z' },
+        message: 'docs: clarify useActionState hook concurrency semantics',
+      },
+      author: { login: 'rickhanlonii', id: 2440089, avatar_url: 'https://avatars.githubusercontent.com/u/2440089?v=4' },
+    },
+    {
+      sha: 'c_hydr_01',
+      parents: [{ sha: 'c_main_03' }],
+      commit: {
+        author: { name: 'sebmarkbage', email: 'seb@fb.com', date: '2025-01-07T09:25:00Z' },
+        committer: { name: 'sebmarkbage', email: 'seb@fb.com', date: '2025-01-07T09:25:00Z' },
+        message: 'fix(ssr): initialize fallback state before streaming boundary renders',
+      },
+      author: { login: 'sebmarkbage', id: 63648, avatar_url: 'https://avatars.githubusercontent.com/u/63648?v=4' },
+    },
+    {
+      sha: 'c_main_03',
+      parents: [{ sha: 'c_main_04' }],
+      commit: {
+        author: { name: 'sophiebits', email: 'sophie@fb.com', date: '2025-01-05T12:00:00Z' },
+        committer: { name: 'sophiebits', email: 'sophie@fb.com', date: '2025-01-05T12:00:00Z' },
+        message: 'fix: resolve race condition in transition cancellation',
+      },
+      author: { login: 'sophiebits', id: 6820, avatar_url: 'https://avatars.githubusercontent.com/u/6820?v=4' },
+    },
+    {
+      sha: 'c_main_04',
+      parents: [{ sha: 'c_main_05' }],
+      commit: {
+        author: { name: 'eps1lon', email: 'eps1lon@fb.com', date: '2025-01-03T16:00:00Z' },
+        committer: { name: 'eps1lon', email: 'eps1lon@fb.com', date: '2025-01-03T16:00:00Z' },
+        message: 'chore: update devDependencies and TypeScript definitions to v5.5',
+      },
+      author: { login: 'eps1lon', id: 12292047, avatar_url: 'https://avatars.githubusercontent.com/u/12292047?v=4' },
+    },
+    {
+      sha: 'c_main_05',
+      parents: [{ sha: 'c_hist_0' }],
+      commit: {
+        author: { name: 'gaearon', email: 'dan@fb.com', date: '2025-01-01T10:00:00Z' },
+        committer: { name: 'gaearon', email: 'dan@fb.com', date: '2025-01-01T10:00:00Z' },
+        message: 'refactor: decouple scheduler queue from microtask timings',
+      },
+      author: { login: 'gaearon', id: 810438, avatar_url: 'https://avatars.githubusercontent.com/u/810438?v=4' },
+    },
+  ]
+
+  // 2. Chained historical commits to provide ample data across the year for heatmaps & charts
+  const authors = ['gaearon', 'acdlite', 'sebmarkbage', 'sophiebits', 'bvaughn', 'trueadm']
+  const historicalCount = 60
+  const baseTime = new Date('2024-12-31T20:00:00Z').getTime()
+
+  for (let i = 0; i < historicalCount; i++) {
+    const login = authors[i % authors.length]
+    const pastDays = i * 4.5
+    const date = new Date(baseTime - pastDays * 86400000).toISOString()
+    const sha = `c_hist_${i}`
+    const parentSha = i < historicalCount - 1 ? `c_hist_${i + 1}` : undefined
+
+    dag.push({
+      sha,
+      parents: parentSha ? [{ sha: parentSha }] : [],
       commit: {
         author: { name: login, email: `${login}@users.noreply.github.com`, date },
         committer: { name: login, email: `${login}@users.noreply.github.com`, date },
-        message: `perf(core): optimize concurrent reconcile step #${i + 1}`,
+        message: `perf(core): optimize concurrent reconcile step #${historicalCount - i}`,
       },
       author: {
         login,
@@ -74,7 +255,8 @@ function generateMockCommits(login: string, count: number): CommitItem[] {
       },
     })
   }
-  return commits
+
+  return dag
 }
 
 export const MOCK_PULL_REQUESTS: PullRequestItem[] = [

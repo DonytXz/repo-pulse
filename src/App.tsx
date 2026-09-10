@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from 'react'
 import { useUrlState } from './hooks/useUrlState'
-import { useRepoData } from './hooks/useRepoData'
+import { useRepoData, useBranches } from './hooks/useRepoData'
 import { Header } from './components/layout/Header'
 import { TokenModal } from './components/layout/TokenModal'
 import { CommandPalette } from './components/ui/CommandPalette'
@@ -23,6 +23,12 @@ const VelocityChart = lazy(() =>
 const BurndownChart = lazy(() =>
   import('./components/charts/BurndownChart').then((m) => ({ default: m.BurndownChart }))
 )
+const CommitGraph = lazy(() =>
+  import('./components/charts/CommitGraph').then((m) => ({ default: m.CommitGraph }))
+)
+const CommitDetailDrawer = lazy(() =>
+  import('./components/dashboard/CommitDetailDrawer').then((m) => ({ default: m.CommitDetailDrawer }))
+)
 
 const ChartFallback = () => (
   <div
@@ -44,8 +50,13 @@ export function App() {
     urlState.isDemo
   )
 
+  const { data: branches } = useBranches(
+    urlState.repo,
+    urlState.isDemo
+  )
+
   const handleSelectRepo = (repo: string, isDemo = false) => {
-    setUrlState({ repo, isDemo, highlightedUser: undefined })
+    setUrlState({ repo, isDemo, highlightedUser: undefined, selectedCommit: undefined })
   }
 
   const handleToggleDemo = () => {
@@ -53,7 +64,7 @@ export function App() {
   }
 
   const handleSelectTab = (
-    tab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors'
+    tab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors' | 'graph'
   ) => {
     setUrlState({ tab })
   }
@@ -63,6 +74,14 @@ export function App() {
       ...prev,
       highlightedUser: prev.highlightedUser === login ? undefined : login,
     }))
+  }
+
+  const handleSelectCommit = (sha: string) => {
+    setUrlState({ selectedCommit: sha })
+  }
+
+  const handleCloseCommitDrawer = () => {
+    setUrlState({ selectedCommit: undefined })
   }
 
   return (
@@ -216,6 +235,25 @@ export function App() {
               </div>
             )}
 
+            {/* Tab: Commit Graph */}
+            {urlState.tab === 'graph' && (
+              <div
+                role="tabpanel"
+                id="tabpanel-graph"
+                aria-labelledby="tab-graph"
+                className="space-y-6"
+              >
+                <Suspense fallback={<ChartFallback />}>
+                  <CommitGraph
+                    commits={metrics.commits}
+                    branches={branches || []}
+                    selectedSha={urlState.selectedCommit}
+                    onSelectCommit={handleSelectCommit}
+                  />
+                </Suspense>
+              </div>
+            )}
+
             {/* Tab: Contributors */}
             {urlState.tab === 'contributors' && (
               <div
@@ -274,6 +312,16 @@ export function App() {
         onToggleDemo={handleToggleDemo}
         onOpenTokenModal={() => setIsTokenModalOpen(true)}
       />
+
+      <Suspense fallback={null}>
+        <CommitDetailDrawer
+          isOpen={!!urlState.selectedCommit}
+          commitSha={urlState.selectedCommit || null}
+          repo={urlState.repo}
+          isDemo={urlState.isDemo}
+          onClose={handleCloseCommitDrawer}
+        />
+      </Suspense>
     </div>
   )
 }

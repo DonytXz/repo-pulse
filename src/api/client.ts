@@ -1,4 +1,13 @@
-import type { RateLimitStatus, RepositoryInfo, Contributor, CommitItem, PullRequestItem, IssueItem } from './types'
+import type {
+  RepositoryInfo,
+  Contributor,
+  CommitItem,
+  PullRequestItem,
+  IssueItem,
+  RateLimitStatus,
+  BranchInfo,
+  CommitDetail,
+} from './types'
 
 const TOKEN_STORAGE_KEY = 'repo_pulse_gh_token'
 const GITHUB_API_BASE = 'https://api.github.com'
@@ -141,6 +150,14 @@ export async function fetchPullRequests(owner: string, repo: string, state: 'all
 
 export async function fetchIssues(owner: string, repo: string, state: 'all' | 'open' | 'closed' = 'all', perPage = 100): Promise<IssueItem[]> {
   return fetchGitHub<IssueItem[]>(`/repos/${owner}/${repo}/issues?state=${state}&per_page=${perPage}&sort=updated&direction=desc`)
+}
+
+export async function fetchBranches(owner: string, repo: string, perPage = 30): Promise<BranchInfo[]> {
+  return fetchGitHub<BranchInfo[]>(`/repos/${owner}/${repo}/branches?per_page=${perPage}`)
+}
+
+export async function fetchCommitDetail(owner: string, repo: string, sha: string): Promise<CommitDetail> {
+  return fetchGitHub<CommitDetail>(`/repos/${owner}/${repo}/commits/${sha}`)
 }
 
 export async function checkRateLimit(): Promise<RateLimitStatus> {
