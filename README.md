@@ -118,13 +118,13 @@ npm run build
 
 ---
 
-## 🚢 Zero-VPS Deployment to GitHub Pages
+## 🚢 Deployment to GitHub Pages
 
 The repository contains an automated GitHub Actions workflow (`.github/workflows/deploy.yml`):
 1. Runs code quality checks (`npm run lint`).
 2. Executes test suite (`npm run test`).
 3. Compiles the static production bundle (`npm run build`).
-4. Deploys the `./dist` folder directly to GitHub Pages with zero VPS maintenance.
+4. Deploys the `./dist` folder directly to GitHub Pages.
 
 To enable GitHub Pages in your repository:
 1. Go to **Settings > Pages**.
