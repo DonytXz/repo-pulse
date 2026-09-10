@@ -1,11 +1,13 @@
 # ⚡ RepoPulse — Open-Source Ecosystem Intelligence & Contributor Network
 
-[![Deploy to GitHub Pages](https://github.com/dalvarez/repo-pulse/actions/workflows/deploy.yml/badge.svg)](https://github.com/dalvarez/repo-pulse/actions/workflows/deploy.yml)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-donatoalvarez.dev%2Frepo--pulse-emerald.svg)](https://donatoalvarez.dev/repo-pulse/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0_Strict-blue.svg)](https://www.typescriptlang.org/)
 [![React 19](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Zero Backend](https://img.shields.io/badge/Backend-100%25_Client--Side-emerald.svg)](#zero-vps-architecture)
 
+> **Live Demo:** [https://donatoalvarez.dev/repo-pulse/](https://donatoalvarez.dev/repo-pulse/)
+>
 > **RepoPulse** is an in-browser analytics and telemetry platform for open-source repositories. It runs **100% client-side**, consumes GitHub's public API directly from the browser, requires **zero VPS or backend servers**, and deploys statically to **GitHub Pages**.
 
 ---
