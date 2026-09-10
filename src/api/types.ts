@@ -36,6 +36,7 @@ export interface Contributor {
 
 export interface CommitItem {
   sha: string
+  parents?: Array<{ sha: string }>
   commit: {
     author: {
       name: string
@@ -48,12 +49,62 @@ export interface CommitItem {
       date: string
     }
     message: string
+    verification?: {
+      verified: boolean
+      reason?: string
+    }
   }
   author: {
     login: string
     id: number
     avatar_url: string
   } | null
+}
+
+export interface BranchInfo {
+  name: string
+  commit: {
+    sha: string
+    url?: string
+  }
+  protected?: boolean
+}
+
+export interface CommitFileChange {
+  sha: string
+  filename: string
+  status: 'added' | 'removed' | 'modified' | 'renamed'
+  additions: number
+  deletions: number
+  changes: number
+  patch?: string
+}
+
+export interface CommitDetail extends CommitItem {
+  stats?: {
+    total: number
+    additions: number
+    deletions: number
+  }
+  files?: CommitFileChange[]
+}
+
+export interface GraphBadge {
+  name: string
+  type: 'branch' | 'tag' | 'head'
+}
+
+export interface GraphRoute {
+  fromTrack: number
+  toTrack: number
+  type: 'straight' | 'branch' | 'merge'
+}
+
+export interface GraphCommit extends CommitItem {
+  trackIndex: number
+  color: string
+  routes: GraphRoute[]
+  badges: GraphBadge[]
 }
 
 export interface PullRequestItem {

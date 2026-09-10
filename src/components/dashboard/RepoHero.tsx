@@ -11,12 +11,13 @@ import {
   TrendingUp,
   FileCheck2,
   Users,
+  GitCommitVertical,
 } from 'lucide-react'
 
 interface RepoHeroProps {
   repository: RepositoryInfo
-  activeTab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors'
-  onSelectTab: (tab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors') => void
+  activeTab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors' | 'graph'
+  onSelectTab: (tab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors' | 'graph') => void
   isDemo?: boolean
 }
 
@@ -28,6 +29,7 @@ export const RepoHero: React.FC<RepoHeroProps> = ({
 }) => {
   const tabs = [
     { id: 'overview' as const, label: 'Overview & Heatmap', icon: LayoutGrid },
+    { id: 'graph' as const, label: 'Commit Graph', icon: GitCommitVertical },
     { id: 'network' as const, label: 'Contributor Network', icon: GitGraph },
     { id: 'velocity' as const, label: 'PR Velocity', icon: TrendingUp },
     { id: 'burndown' as const, label: 'Issue Burndown', icon: FileCheck2 },

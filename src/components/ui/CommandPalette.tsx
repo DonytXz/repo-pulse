@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Search, LayoutGrid, GitFork, Sparkles, Key, X } from 'lucide-react'
+import { Search, LayoutGrid, GitFork, Sparkles, Key, X, GitCommitVertical, Users } from 'lucide-react'
 import { normalizeRepoInput } from '../../utils/repoParser'
 
 interface CommandPaletteProps {
   isOpen: boolean
   onClose: () => void
   onSelectRepo: (repo: string, isDemo?: boolean) => void
-  onSelectTab: (tab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors') => void
+  onSelectTab: (tab: 'overview' | 'network' | 'velocity' | 'burndown' | 'contributors' | 'graph') => void
   onToggleDemo: () => void
   onOpenTokenModal: () => void
 }
@@ -218,6 +218,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               <button
                 type="button"
                 onClick={() => {
+                  onSelectTab('graph')
+                  onClose()
+                }}
+                className="text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 transition-colors"
+              >
+                <GitCommitVertical className="w-3.5 h-3.5 text-cyan-400 shrink-0" aria-hidden="true" />
+                <span>Commit Graph</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
                   onSelectTab('network')
                   onClose()
                 }}
@@ -247,6 +258,17 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
               >
                 <LayoutGrid className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
                 <span>Issue Burndown</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onSelectTab('contributors')
+                  onClose()
+                }}
+                className="text-left px-3 py-2 rounded-xl hover:bg-slate-800 flex items-center gap-2 cursor-pointer text-slate-300 hover:text-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400 transition-colors"
+              >
+                <Users className="w-3.5 h-3.5 text-blue-400 shrink-0" aria-hidden="true" />
+                <span>Contributors</span>
               </button>
             </div>
           </div>

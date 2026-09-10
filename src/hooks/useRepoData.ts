@@ -5,11 +5,12 @@ import {
   fetchCommits,
   fetchPullRequests,
   fetchIssues,
+  fetchBranches,
   GitHubApiError,
 } from '../api/client'
 import { computeRepoMetrics } from '../utils/metrics'
-import { MOCK_METRICS } from '../api/mockData'
-import type { RepoMetrics } from '../api/types'
+import { MOCK_METRICS, MOCK_BRANCHES } from '../api/mockData'
+import type { RepoMetrics, BranchInfo } from '../api/types'
 import { normalizeRepoInput } from '../utils/repoParser'
 
 export function useRepoData(repoFullName: string, isDemo: boolean) {
@@ -61,5 +62,31 @@ export function useRepoData(repoFullName: string, isDemo: boolean) {
       }
       return failureCount < 1
     },
+  })
+}
+
+export function useBranches(repoFullName: string, isDemo: boolean) {
+  return useQuery<BranchInfo[], GitHubApiError>({
+    queryKey: ['repoBranches', normalizeRepoInput(repoFullName), isDemo],
+    queryFn: async () => {
+      if (isDemo) {
+        return MOCK_BRANCHES
+      }
+
+      const clean = normalizeRepoInput(repoFullName)
+      const parts = clean.split('/')
+      if (parts.length !== 2 || !parts[0] || !parts[1]) {
+        return []
+      }
+
+      const [owner, repo] = parts
+      try {
+        return await fetchBranches(owner, repo)
+      } catch {
+        return []
+      }
+    },
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   })
 }
