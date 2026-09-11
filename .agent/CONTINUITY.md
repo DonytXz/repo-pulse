@@ -30,7 +30,16 @@
   - Built `CommitGraph.tsx` multi-branch SVG visualizer with branch chips (`main`, `HEAD`), search filtering, and keyboard navigation
   - Built `CommitDetailDrawer.tsx` slide-out drawer with file diffs, +/- line stats, PGP verification badge, focus trap, and Escape dismiss
   - PR #2 created to solve Issue #1 and successfully squash-merged into `main`
-- [x] Automated test suite expanded: 70/70 tests passing across 14 test suites (`vitest`)
+- [x] Default Light Theme & Persistent Theme Switcher Implemented:
+  - Default theme set to `'light'` on first visit
+  - `ThemeContext.tsx` with `localStorage` persistence under `'repopulse-theme'`
+  - Synchronous FOUC prevention script in `index.html` with `<meta name="color-scheme" content="light dark" />`
+  - Tailwind CSS v4 class-based variant `@custom-variant dark (&:where(.dark, .dark *));` in `index.css`
+  - Accessible Sun/Moon toggle button in Header
+  - Theme toggle quick action in Command Palette (`Cmd + K`)
+  - All UI surfaces adapted for WCAG 2.1 AA compliant light & dark contrast
+  - ECharts (`CommitHeatmap`, `ContributorGraph`, `VelocityChart`, `BurndownChart`) and SVG `CommitGraph` dynamically restyled
+- [x] Automated test suite expanded: 76/76 tests passing across 15 test suites (`vitest` + `axe-core`)
 - [x] Static build clean & zero lint errors (`oxlint`)
 - [x] Deployed live to GitHub Pages: https://donatoalvarez.dev/repo-pulse/
 
@@ -40,24 +49,27 @@
 | `AGENTS.md` | Shared Agent Configuration & Quality Gates |
 | `.agent/rules/*` | System rules (continuity, git, testing, security, etc.) |
 | `.agent/CONTINUITY.md` | Working memory and status tracker |
-| `src/api/types.ts` | Added parents, BranchInfo, CommitDetail, GraphBadge, GraphRoute, GraphCommit |
-| `src/api/client.ts` | Added fetchBranches, fetchCommitDetail, error handling |
-| `src/api/mockData.ts` | Multi-branch DAG fixtures with merge history, MOCK_BRANCHES, MOCK_COMMIT_DETAIL |
-| `src/utils/gitGraph.ts` | Topological subway track allocation & cubic bezier curve routing engine |
-| `src/components/charts/CommitGraph.tsx` | Interactive vector SVG Git DAG commit history graph |
-| `src/components/dashboard/CommitDetailDrawer.tsx` | File diffs, line additions/deletions, PGP verification drawer |
-| `src/components/dashboard/RepoHero.tsx` | Added Commit Graph tab navigation |
-| `src/components/ui/CommandPalette.tsx` | Added Commit Graph navigation shortcut |
-| `src/hooks/useRepoData.ts` | Added useBranches query hook |
-| `src/hooks/useUrlState.ts` | Added 'graph' tab and commit param sync |
-| `src/App.tsx` | Wired Commit Graph tab and drawer with code-splitting |
-| `src/test/*` | 14 test suites covering DAG math, graph rendering, drawer, and axe-core a11y |
+| `index.html` | FOUC prevention script, color-scheme meta tag, light body class |
+| `src/index.css` | Tailwind v4 dark variant & theme tokens |
+| `src/context/ThemeContext.tsx` | Theme state, toggle, and localStorage persistence |
+| `src/components/layout/Header.tsx` | Sun/Moon theme switcher button and light/dark styles |
+| `src/components/ui/CommandPalette.tsx` | Theme toggle quick action and light/dark styling |
+| `src/components/charts/*` | Dynamic light/dark theme adaptation for ECharts and SVG graph |
+| `src/components/dashboard/*` | UI cards, drawers, and metric badges adapted for light/dark |
+| `src/test/ThemeContext.test.tsx` | Unit tests for theme provider, toggle, and persistence |
+| `src/test/*` | 15 test suites covering theme, DAG, charts, and axe-core a11y |
 
 ## ⚠️ Mistakes & Learnings
 - ❌ ECharts calendar heatmap tried to fit 4.5 years in a single row for multi-year repos.
   → 💡 Unconstrained date ranges break calendar cell aspect ratios.
   → 🔧 Fixed by constraining views to max 1-year (52 weeks) with year selector pills.
 - ❌ Nesting `<a>` profile link inside `<button>` contributor card triggered axe-core "Element has focusable descendants".
+  → 💡 Native buttons must never enclose interactive anchors.
+  → 🔧 Fixed by decoupling the button to contributor details and making the external profile icon an adjacent sibling.
+- ❌ Tailwind v4 dark mode uses `@media (prefers-color-scheme: dark)` by default.
+  → 💡 For manual/class-based theme toggling (`.dark`), Tailwind CSS v4 requires `@custom-variant dark (&:where(.dark, .dark *));`.
+  → 🔧 Configured in `src/index.css`.
+
   → 💡 Interactive elements cannot be nested in other interactive elements.
   → 🔧 Fixed by making item a styled row with the selection button and the external link as siblings.
 - ❌ `<button role="row">` and nested `<button>` for Copy SHA in SVG commit table violated ARIA specifications.
