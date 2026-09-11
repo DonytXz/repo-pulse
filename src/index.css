@@ -1,7 +1,17 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --border-subtle: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+  }
+
+  .dark {
     --bg-primary: #090d16;
     --bg-secondary: #0f172a;
     --border-subtle: #1e293b;

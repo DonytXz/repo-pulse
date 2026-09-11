@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react'
 import { useUrlState } from './hooks/useUrlState'
 import { useRepoData, useBranches } from './hooks/useRepoData'
+import { ThemeProvider } from './context/ThemeContext'
 import { Header } from './components/layout/Header'
 import { TokenModal } from './components/layout/TokenModal'
 import { CommandPalette } from './components/ui/CommandPalette'
@@ -34,13 +35,13 @@ const ChartFallback = () => (
   <div
     role="status"
     aria-label="Loading telemetry visualization"
-    className="w-full h-[320px] rounded-2xl bg-slate-900/40 border border-slate-800 animate-pulse flex items-center justify-center text-slate-400 text-xs"
+    className="w-full h-[320px] rounded-2xl bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 animate-pulse flex items-center justify-center text-slate-500 dark:text-slate-400 text-xs"
   >
     Loading telemetry visualization...
   </div>
 )
 
-export function App() {
+export function AppContent() {
   const [urlState, setUrlState] = useUrlState()
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
@@ -85,11 +86,11 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-900 dark:selection:text-cyan-200">
       {/* Accessible Skip Link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-cyan-500 focus:text-slate-950 focus:font-semibold focus:rounded-xl focus:shadow-xl focus:ring-2 focus:ring-white"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-cyan-600 dark:focus:bg-cyan-500 focus:text-white dark:focus:text-slate-950 focus:font-semibold focus:rounded-xl focus:shadow-xl focus:ring-2 focus:ring-white"
       >
         Skip to main content
       </a>
@@ -283,15 +284,15 @@ export function App() {
       </main>
 
       {/* Footer / Portfolio Case Study Highlights */}
-      <footer className="w-full border-t border-slate-800 bg-slate-950/80 py-8 px-4 lg:px-8 mt-12 text-xs text-slate-400">
+      <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 py-8 px-4 lg:px-8 mt-12 text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-300">RepoPulse</span> &bull;
+            <span className="font-semibold text-slate-800 dark:text-slate-300">RepoPulse</span> &bull;
             <span>100% Client-Side Open-Source Telemetry</span> &bull;
             <span>Zero VPS Backend</span>
           </div>
 
-          <div className="flex items-center gap-4 text-slate-400">
+          <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
             <span>Powered by React 19, Apache ECharts, TanStack Query & Tailwind CSS</span>
           </div>
         </div>
@@ -323,6 +324,14 @@ export function App() {
         />
       </Suspense>
     </div>
+  )
+}
+
+export function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 

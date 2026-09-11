@@ -10,11 +10,14 @@ import { CommandPalette } from '../components/ui/CommandPalette'
 import { RepoHero } from '../components/dashboard/RepoHero'
 import { CommitGraph } from '../components/charts/CommitGraph'
 import { CommitDetailDrawer } from '../components/dashboard/CommitDetailDrawer'
+import { ThemeProvider } from '../context/ThemeContext'
 import { MOCK_METRICS, MOCK_COMMITS, MOCK_BRANCHES } from '../api/mockData'
+
+const renderWithTheme = (ui: React.ReactElement) => render(ui, { wrapper: ThemeProvider })
 
 describe('Automated Accessibility (axe-core)', () => {
   it('MetricCards has no axe violations', async () => {
-    const { container } = render(<MetricCards metrics={MOCK_METRICS} />)
+    const { container } = renderWithTheme(<MetricCards metrics={MOCK_METRICS} />)
     const results = await axe.run(container, {
       rules: {
         'color-contrast': { enabled: false },
@@ -24,7 +27,7 @@ describe('Automated Accessibility (axe-core)', () => {
   })
 
   it('ContributorLeaderboard has no axe violations', async () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <ContributorLeaderboard
         contributors={MOCK_METRICS.contributors}
         onSelectUser={vi.fn()}
@@ -39,7 +42,7 @@ describe('Automated Accessibility (axe-core)', () => {
   })
 
   it('ErrorDisplay has no axe violations', async () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <ErrorDisplay
         error={new Error('Test error')}
         onRetry={vi.fn()}
@@ -56,7 +59,7 @@ describe('Automated Accessibility (axe-core)', () => {
   })
 
   it('TokenModal has no axe violations', async () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <TokenModal isOpen={true} onClose={vi.fn()} onTokenUpdated={vi.fn()} />
     )
     const results = await axe.run(container, {
@@ -68,7 +71,7 @@ describe('Automated Accessibility (axe-core)', () => {
   })
 
   it('CommandPalette has no axe violations', async () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={vi.fn()}
@@ -87,7 +90,7 @@ describe('Automated Accessibility (axe-core)', () => {
   })
 
   it('RepoHero has no axe violations', async () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <div>
         <RepoHero
           repository={MOCK_METRICS.repository}
@@ -107,7 +110,7 @@ describe('Automated Accessibility (axe-core)', () => {
   })
 
   it('CommitGraph has no axe violations', async () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <CommitGraph
         commits={MOCK_COMMITS}
         branches={MOCK_BRANCHES}
@@ -126,7 +129,7 @@ describe('Automated Accessibility (axe-core)', () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
     })
-    const { container, findByText } = render(
+    const { container, findByText } = renderWithTheme(
       <QueryClientProvider client={queryClient}>
         <CommitDetailDrawer
           isOpen={true}

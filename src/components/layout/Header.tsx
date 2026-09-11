@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { Activity, Search, Sparkles, Command } from 'lucide-react'
+import { Activity, Search, Sparkles, Command, Sun, Moon } from 'lucide-react'
 import { RateLimitBadge } from './RateLimitBadge'
 import { normalizeRepoInput } from '../../utils/repoParser'
+import { useTheme } from '../../context/ThemeContext'
 
 interface HeaderProps {
   currentRepo: string
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenTokenModal,
   onOpenCommandPalette,
 }) => {
+  const { theme, toggleTheme } = useTheme()
   const [searchInput, setSearchInput] = useState(currentRepo)
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -32,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md px-4 lg:px-8 py-3 transition-colors">
+    <header className="sticky top-0 z-30 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-4 lg:px-8 py-3 transition-colors">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         {/* Left: Brand & quick repo pill */}
         <div className="flex items-center justify-between md:justify-start gap-4">
@@ -47,14 +49,14 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-base tracking-tight text-white font-sans">
+                <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white font-sans">
                   RepoPulse
                 </span>
-                <span className="px-1.5 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                <span className="px-1.5 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-semibold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
                   OSS Intel
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">
                 Open-Source Ecosystem Telemetry
               </p>
             </div>
@@ -66,14 +68,14 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={onToggleDemo}
             className={`px-2.5 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-400 ${
               isDemo
-                ? 'bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-xs shadow-purple-500/20'
-                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200 hover:bg-slate-800'
+                ? 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/40 shadow-xs shadow-purple-500/20'
+                : 'bg-slate-100 text-slate-600 border-slate-200 hover:text-slate-900 hover:bg-slate-200/80 dark:bg-slate-900 dark:text-slate-400 dark:border-slate-800 dark:hover:text-slate-200 dark:hover:bg-slate-800'
             }`}
             title="Toggle offline demo dataset (zero API calls)"
             aria-pressed={isDemo}
             aria-label={isDemo ? 'Disable demo mode' : 'Enable offline demo mode'}
           >
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <Sparkles className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400" />
             <span>{isDemo ? 'Demo Mode: ON' : 'Live Mode'}</span>
           </button>
         </div>
@@ -81,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Center: Search input */}
         <form onSubmit={handleSearchSubmit} className="flex-1 max-w-md" role="search">
           <div className="relative group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-cyan-400 transition-colors" aria-hidden="true" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-cyan-500 transition-colors" aria-hidden="true" />
             <input
               id="repo-search-input"
               name="repoQuery"
@@ -93,12 +95,12 @@ export const Header: React.FC<HeaderProps> = ({
               autoCapitalize="none"
               autoCorrect="off"
               spellCheck="false"
-              className="w-full pl-10 pr-20 py-2 rounded-xl bg-slate-900/90 border border-slate-800 text-sm text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-colors"
+              className="w-full pl-10 pr-20 py-2 rounded-xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-colors"
             />
             <button
               type="button"
               onClick={onOpenCommandPalette}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md bg-slate-800 text-[10px] text-slate-400 font-mono border border-slate-700 flex items-center gap-1 hover:text-slate-200 cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-cyan-400"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-[10px] text-slate-600 dark:text-slate-400 font-mono border border-slate-300 dark:border-slate-700 flex items-center gap-1 hover:text-slate-900 dark:hover:text-slate-200 cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-cyan-400"
               title="Open Command Palette (Cmd+K)"
               aria-label="Open command palette, shortcut Command plus K"
             >
@@ -107,15 +109,30 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </form>
 
-        {/* Right: Rate Limit meter & External link */}
-        <div className="flex items-center gap-3">
+        {/* Right: Theme toggle, Rate Limit meter & External link */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Theme switcher toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400"
+            title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+            aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 text-amber-400" aria-hidden="true" />
+            ) : (
+              <Moon className="w-4 h-4 text-slate-700" aria-hidden="true" />
+            )}
+          </button>
+
           <RateLimitBadge onOpenTokenModal={onOpenTokenModal} />
 
           <a
             href={`https://github.com/${currentRepo}`}
             target="_blank"
             rel="noreferrer"
-            className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800/80 transition-colors"
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400"
             title="View on GitHub"
           >
             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">

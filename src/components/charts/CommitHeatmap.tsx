@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import { Calendar, Flame } from 'lucide-react'
+import { useTheme } from '../../context/ThemeContext'
 
 interface CommitHeatmapProps {
   data: Array<[string, number]> // [YYYY-MM-DD, count]
@@ -11,6 +12,7 @@ interface EChartsHeatmapParam {
 }
 
 export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
+  const { theme } = useTheme()
   // Extract distinct available years from commit data
   const availableYears = useMemo(() => {
     const set = new Set<string>()
@@ -72,21 +74,23 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
   }, [data, selectedTimeframe])
 
   const chartOption = useMemo(() => {
+    const isDark = theme === 'dark'
+
     return {
       backgroundColor: 'transparent',
       tooltip: {
         position: 'top',
-        backgroundColor: '#0f172a',
-        borderColor: '#334155',
-        textStyle: { color: '#f8fafc' },
+        backgroundColor: isDark ? '#0f172a' : '#ffffff',
+        borderColor: isDark ? '#334155' : '#e2e8f0',
+        textStyle: { color: isDark ? '#f8fafc' : '#0f172a' },
         formatter: (p: EChartsHeatmapParam) => {
           const val = p.data
           if (!val) return ''
           const count = val[1]
           const date = val[0]
           return `
-            <div style="font-size:12px;padding:3px 6px;">
-              <strong style="color:#38bdf8;">${count} commit${count === 1 ? '' : 's'}</strong> on ${date}
+            <div style="font-size:12px;padding:3px 6px;color:${isDark ? '#f8fafc' : '#0f172a'};">
+              <strong style="color:${isDark ? '#38bdf8' : '#0284c7'};">${count} commit${count === 1 ? '' : 's'}</strong> on ${date}
             </div>
           `
         },
@@ -103,11 +107,13 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
         text: ['More', 'Less'],
         textGap: 8,
         textStyle: {
-          color: '#94a3b8',
+          color: isDark ? '#94a3b8' : '#64748b',
           fontSize: 10,
         },
         inRange: {
-          color: ['#0f172a', '#064e3b', '#059669', '#10b981', '#34d399'],
+          color: isDark
+            ? ['#0f172a', '#064e3b', '#059669', '#10b981', '#34d399']
+            : ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'],
         },
       },
       calendar: {
@@ -119,25 +125,25 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
         range: range,
         itemStyle: {
           borderWidth: 2.5,
-          borderColor: '#020617',
+          borderColor: isDark ? '#020617' : '#ffffff',
           borderRadius: 3,
         },
         yearLabel: { show: false },
         monthLabel: {
           nameMap: 'en',
-          color: '#94a3b8',
+          color: isDark ? '#94a3b8' : '#64748b',
           fontSize: 11,
         },
         dayLabel: {
           firstDay: 1,
           nameMap: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-          color: '#94a3b8',
+          color: isDark ? '#94a3b8' : '#64748b',
           fontSize: 10,
         },
         splitLine: {
           show: true,
           lineStyle: {
-            color: '#1e293b',
+            color: isDark ? '#1e293b' : '#e2e8f0',
             width: 1.5,
           },
         },
@@ -150,26 +156,26 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
         },
       ],
     }
-  }, [range, filteredData, maxDayCommits])
+  }, [range, filteredData, maxDayCommits, theme])
 
   return (
-    <div className="w-full min-h-[260px] rounded-2xl bg-slate-900/60 border border-slate-800 p-5 flex flex-col relative">
+    <div className="w-full min-h-[260px] rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-5 flex flex-col relative shadow-xs">
       {/* Header with Title and Timeframe Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-emerald-400" aria-hidden="true" />
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               Commit Activity Heatmap
             </h3>
             <span className="text-xs text-slate-400">&bull;</span>
-            <span className="text-xs text-slate-400">
-              <span className="tabular-nums font-mono">{periodCommits}</span> commit{periodCommits === 1 ? '' : 's'} in selected period (<span className="tabular-nums font-mono">{data.reduce((a, b) => a + b[1], 0)}</span> total)
+            <span className="text-xs text-slate-600 dark:text-slate-400">
+              <span className="tabular-nums font-mono font-semibold text-slate-900 dark:text-white">{periodCommits}</span> commit{periodCommits === 1 ? '' : 's'} in selected period (<span className="tabular-nums font-mono">{data.reduce((a, b) => a + b[1], 0)}</span> total)
             </span>
           </div>
-          <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-0.5">
+          <div className="flex items-center gap-3 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
             <span className="flex items-center gap-1">
-              <Flame className="w-3 h-3 text-amber-400" aria-hidden="true" />
+              <Flame className="w-3 h-3 text-amber-500 dark:text-amber-400" aria-hidden="true" />
               <span className="tabular-nums font-mono">{activeDays}</span> active day{activeDays === 1 ? '' : 's'}
             </span>
             <span>&bull;</span>
@@ -182,16 +188,16 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
           <div
             role="group"
             aria-label="Commit activity timeframe filters"
-            className="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 p-1 rounded-xl self-start sm:self-auto overflow-x-auto max-w-full"
+            className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 p-1 rounded-xl self-start sm:self-auto overflow-x-auto max-w-full"
           >
             <button
               type="button"
               onClick={() => setSelectedTimeframe('recent')}
               aria-pressed={selectedTimeframe === 'recent'}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 ${
                 selectedTimeframe === 'recent'
-                  ? 'bg-emerald-500 text-slate-950 font-semibold shadow-xs shadow-emerald-500/20'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                  ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-semibold shadow-xs shadow-emerald-600/20 dark:shadow-emerald-500/20'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
               }`}
             >
               Recent (12M)
@@ -203,10 +209,10 @@ export const CommitHeatmap: React.FC<CommitHeatmapProps> = ({ data }) => {
                 key={year}
                 onClick={() => setSelectedTimeframe(year)}
                 aria-pressed={selectedTimeframe === year}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 ${
                   selectedTimeframe === year
-                    ? 'bg-emerald-500 text-slate-950 font-semibold shadow-xs shadow-emerald-500/20'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                    ? 'bg-emerald-600 dark:bg-emerald-500 text-white dark:text-slate-950 font-semibold shadow-xs shadow-emerald-600/20 dark:shadow-emerald-500/20'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60'
                 }`}
               >
                 {year}

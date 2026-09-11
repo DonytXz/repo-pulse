@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef } from 'react'
 import { Search, GitBranch, Tag, Copy, Check, Filter } from 'lucide-react'
 import type { CommitItem, BranchInfo } from '../../api/types'
 import { computeGitGraph, generateRoutePath, DEFAULT_LAYOUT } from '../../utils/gitGraph'
+import { useTheme } from '../../context/ThemeContext'
 
 interface CommitGraphProps {
   commits: CommitItem[]
@@ -16,6 +17,8 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
   selectedSha,
   onSelectCommit,
 }) => {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const [searchQuery, setSearchQuery] = useState('')
   const [copiedSha, setCopiedSha] = useState<string | null>(null)
   const listContainerRef = useRef<HTMLDivElement>(null)
@@ -78,18 +81,18 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
     <div
       role="region"
       aria-label="Git commit history graph and topological subway tree"
-      className="w-full rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col overflow-hidden shadow-xl"
+      className="w-full rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden shadow-xl"
     >
       {/* Top Controls Toolbar */}
-      <div className="p-4 border-b border-slate-800 bg-slate-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
+          <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 shrink-0">
             <GitBranch className="w-4 h-4" aria-hidden="true" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
               <span>Commit History Graph</span>
-              <span className="text-xs text-slate-400 font-mono font-normal">
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono font-normal">
                 ({filteredCommits.length} of {commits.length} commits)
               </span>
             </h3>
@@ -105,7 +108,7 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter commits by message, author, SHA..."
             aria-label="Filter commits"
-            className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+            className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
           />
         </div>
       </div>
@@ -119,13 +122,13 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
         className="w-full overflow-x-auto max-h-[640px] overflow-y-auto select-none font-sans focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-cyan-500/50"
       >
         {filteredCommits.length === 0 ? (
-          <div className="p-12 text-center text-slate-400 text-xs">
-            <Filter className="w-8 h-8 mx-auto mb-2 text-slate-600" aria-hidden="true" />
-            <p className="font-medium text-slate-300">No commits match your filter query</p>
+          <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-xs">
+            <Filter className="w-8 h-8 mx-auto mb-2 text-slate-400 dark:text-slate-600" aria-hidden="true" />
+            <p className="font-medium text-slate-700 dark:text-slate-300">No commits match your filter query</p>
             <p className="text-[11px] text-slate-500 mt-1">Try clearing the search input above</p>
           </div>
         ) : (
-          <ul role="list" className="divide-y divide-slate-800/60 min-w-full">
+          <ul role="list" className="divide-y divide-slate-200 dark:divide-slate-800/60 min-w-full">
             {filteredCommits.map((commit, index) => {
               const isSelected = selectedSha === commit.sha
               const shortSha = commit.sha.slice(0, 7)
@@ -144,8 +147,8 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                   key={commit.sha}
                   className={`w-full flex items-center transition-colors group ${
                     isSelected
-                      ? 'bg-cyan-500/15 text-white'
-                      : 'hover:bg-slate-800/40 text-slate-300 hover:text-white'
+                      ? 'bg-cyan-500/15 text-slate-900 dark:text-white'
+                      : 'hover:bg-slate-100/80 dark:hover:bg-slate-800/40 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                   style={{ height: `${rowHeight}px` }}
                 >
@@ -157,7 +160,7 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     aria-pressed={isSelected}
                     aria-label={`Commit ${shortSha}: ${title} by ${commit.author?.login || commit.commit.author.name}`}
-                    className="flex-1 min-w-0 h-full flex items-center text-left cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-400"
+                    className="flex-1 min-w-0 h-full flex items-center text-left cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-cyan-500"
                   >
                     {/* 1. SVG Subway Rails & Node */}
                     <div
@@ -188,7 +191,7 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                               stroke={commit.color}
                               strokeWidth="2.2"
                               strokeLinecap="round"
-                              opacity="0.85"
+                              opacity={isDark ? "0.85" : "0.95"}
                             />
                           )
                         })}
@@ -199,7 +202,7 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                           cy={nodeY}
                           r={isSelected ? nodeRadius + 1.5 : nodeRadius}
                           fill={commit.color}
-                          stroke="#0f172a"
+                          stroke={isDark ? "#0f172a" : "#ffffff"}
                           strokeWidth="2"
                         />
 
@@ -209,7 +212,7 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                             cx={nodeX}
                             cy={nodeY}
                             r={nodeRadius - 2}
-                            fill="#020617"
+                            fill={isDark ? "#020617" : "#ffffff"}
                           />
                         )}
                       </svg>
@@ -223,10 +226,10 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                           key={bIdx}
                           className={`px-1.5 py-0.5 rounded-md text-[10px] font-mono font-medium flex items-center gap-1 shrink-0 ${
                             badge.type === 'head'
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40'
                               : badge.type === 'branch'
-                              ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
-                              : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                              ? 'bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-500/40'
+                              : 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40'
                           }`}
                         >
                           {badge.type === 'tag' ? (
@@ -238,7 +241,7 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                         </span>
                       ))}
 
-                      <span className="text-xs font-medium text-slate-200 truncate group-hover:text-white">
+                      <span className="text-xs font-medium text-slate-800 dark:text-slate-200 truncate group-hover:text-slate-900 dark:group-hover:text-white">
                         {title}
                       </span>
                     </div>
@@ -252,20 +255,20 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                           width={20}
                           height={20}
                           loading="lazy"
-                          className="w-5 h-5 rounded-full border border-slate-700 shrink-0"
+                          className="w-5 h-5 rounded-full border border-slate-200 dark:border-slate-700 shrink-0"
                         />
                       ) : (
-                        <div className="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-mono text-[10px] text-slate-400">
+                        <div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center font-mono text-[10px] text-slate-600 dark:text-slate-400">
                           {commit.commit.author.name[0]?.toUpperCase()}
                         </div>
                       )}
-                      <span className="text-xs text-slate-300 truncate">
+                      <span className="text-xs text-slate-600 dark:text-slate-300 truncate">
                         {commit.author?.login || commit.commit.author.name}
                       </span>
                     </div>
 
                     {/* 4. Date */}
-                    <div className="hidden md:block w-28 shrink-0 text-right pr-4 text-xs font-mono text-slate-400 tabular-nums">
+                    <div className="hidden md:block w-28 shrink-0 text-right pr-4 text-xs font-mono text-slate-500 dark:text-slate-400 tabular-nums">
                       {formattedDate}
                     </div>
                   </button>
@@ -277,13 +280,13 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
                       onClick={(e) => handleCopySha(e, commit.sha)}
                       aria-label={`Copy SHA ${shortSha}`}
                       title="Copy full commit SHA"
-                      className="px-2 py-1 rounded-md bg-slate-950/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 font-mono text-[11px] text-cyan-400 flex items-center gap-1 transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-cyan-400 cursor-pointer"
+                      className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-950/80 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 font-mono text-[11px] text-cyan-700 dark:text-cyan-400 flex items-center gap-1 transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-cyan-500 cursor-pointer"
                     >
                       <span>{shortSha}</span>
                       {copiedSha === commit.sha ? (
-                        <Check className="w-3 h-3 text-emerald-400" aria-hidden="true" />
+                        <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
                       ) : (
-                        <Copy className="w-3 h-3 text-slate-500 hover:text-slate-300" aria-hidden="true" />
+                        <Copy className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" aria-hidden="true" />
                       )}
                     </button>
                   </div>
@@ -295,7 +298,7 @@ export const CommitGraph: React.FC<CommitGraphProps> = ({
       </div>
 
       {/* Footer info tip */}
-      <div className="p-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-mono">
         <span>Tip: Click any commit to view changed files & line diffs &bull; ArrowUp/Down to navigate</span>
         <span>Git DAG Subway Map</span>
       </div>

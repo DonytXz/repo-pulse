@@ -2,11 +2,14 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { CommitGraph } from '../components/charts/CommitGraph'
+import { ThemeProvider } from '../context/ThemeContext'
 import { MOCK_COMMITS, MOCK_BRANCHES } from '../api/mockData'
+
+const renderWithTheme = (ui: React.ReactElement) => render(ui, { wrapper: ThemeProvider })
 
 describe('CommitGraph', () => {
   it('renders commit history explorer with commits count', () => {
-    render(
+    renderWithTheme(
       <CommitGraph
         commits={MOCK_COMMITS}
         branches={MOCK_BRANCHES}
@@ -19,7 +22,7 @@ describe('CommitGraph', () => {
   })
 
   it('renders branch badges and commit messages', () => {
-    render(
+    renderWithTheme(
       <CommitGraph
         commits={MOCK_COMMITS}
         branches={MOCK_BRANCHES}
@@ -34,7 +37,7 @@ describe('CommitGraph', () => {
   })
 
   it('filters commits by message or author via search query input', () => {
-    render(
+    renderWithTheme(
       <CommitGraph
         commits={MOCK_COMMITS}
         branches={MOCK_BRANCHES}
@@ -51,7 +54,7 @@ describe('CommitGraph', () => {
 
   it('triggers onSelectCommit callback when a commit row is clicked', () => {
     const handleSelect = vi.fn()
-    render(
+    renderWithTheme(
       <CommitGraph
         commits={MOCK_COMMITS}
         branches={MOCK_BRANCHES}
@@ -69,7 +72,7 @@ describe('CommitGraph', () => {
 
   it('handles keyboard navigation with arrow keys and Enter', () => {
     const handleSelect = vi.fn()
-    render(
+    renderWithTheme(
       <CommitGraph
         commits={MOCK_COMMITS}
         branches={MOCK_BRANCHES}

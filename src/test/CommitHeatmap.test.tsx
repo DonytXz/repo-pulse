@@ -2,10 +2,13 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { CommitHeatmap } from '../components/charts/CommitHeatmap'
+import { ThemeProvider } from '../context/ThemeContext'
 
 vi.mock('echarts-for-react', () => ({
   default: () => <div data-testid="echarts-heatmap">Heatmap Canvas</div>,
 }))
+
+const renderWithTheme = (ui: React.ReactElement) => render(ui, { wrapper: ThemeProvider })
 
 const mockData: Array<[string, number]> = [
   ['2023-05-10', 5],
@@ -16,14 +19,14 @@ const mockData: Array<[string, number]> = [
 
 describe('CommitHeatmap', () => {
   it('renders commit statistics and region container', () => {
-    render(<CommitHeatmap data={mockData} />)
+    renderWithTheme(<CommitHeatmap data={mockData} />)
 
     expect(screen.getByText('Commit Activity Heatmap')).toBeInTheDocument()
     expect(screen.getByRole('region', { name: /Commit activity calendar heatmap/i })).toBeInTheDocument()
   })
 
   it('extracts distinct years into selectable timeframe pills', () => {
-    render(<CommitHeatmap data={mockData} />)
+    renderWithTheme(<CommitHeatmap data={mockData} />)
 
     const recentBtn = screen.getByRole('button', { name: /Recent \(12M\)/i })
     const year2024Btn = screen.getByRole('button', { name: '2024' })
@@ -36,7 +39,7 @@ describe('CommitHeatmap', () => {
   })
 
   it('updates selected timeframe pill on click and recalculates period counts', () => {
-    render(<CommitHeatmap data={mockData} />)
+    renderWithTheme(<CommitHeatmap data={mockData} />)
 
     const year2023Btn = screen.getByRole('button', { name: '2023' })
     fireEvent.click(year2023Btn)

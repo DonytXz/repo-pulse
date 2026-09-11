@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { CommandPalette } from '../components/ui/CommandPalette'
+import { ThemeProvider } from '../context/ThemeContext'
+
+const renderWithTheme = (ui: React.ReactElement) => render(ui, { wrapper: ThemeProvider })
 
 describe('CommandPalette', () => {
   const onClose = vi.fn()
@@ -12,10 +15,11 @@ describe('CommandPalette', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    localStorage.clear()
   })
 
   it('renders dialog and search input when open', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={onClose}
@@ -31,7 +35,7 @@ describe('CommandPalette', () => {
   })
 
   it('does not render when isOpen is false', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={false}
         onClose={onClose}
@@ -46,7 +50,7 @@ describe('CommandPalette', () => {
   })
 
   it('closes when Escape is pressed', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={onClose}
@@ -62,7 +66,7 @@ describe('CommandPalette', () => {
   })
 
   it('filters repositories when typing query', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={onClose}
@@ -81,7 +85,7 @@ describe('CommandPalette', () => {
   })
 
   it('selects repository and closes palette when clicking repo option', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={onClose}
@@ -100,7 +104,7 @@ describe('CommandPalette', () => {
   })
 
   it('supports custom URL or repository entry on form submit', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={onClose}
@@ -120,7 +124,7 @@ describe('CommandPalette', () => {
   })
 
   it('triggers view navigation tab changes', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={onClose}
@@ -139,7 +143,7 @@ describe('CommandPalette', () => {
   })
 
   it('triggers quick actions for demo mode and token modal', () => {
-    render(
+    renderWithTheme(
       <CommandPalette
         isOpen={true}
         onClose={onClose}
@@ -153,6 +157,24 @@ describe('CommandPalette', () => {
     const demoBtn = screen.getByRole('button', { name: /Toggle Offline Demo Snapshot Mode/i })
     fireEvent.click(demoBtn)
     expect(onToggleDemo).toHaveBeenCalled()
+    expect(onClose).toHaveBeenCalled()
+  })
+
+  it('triggers theme toggle quick action and closes palette', () => {
+    renderWithTheme(
+      <CommandPalette
+        isOpen={true}
+        onClose={onClose}
+        onSelectRepo={onSelectRepo}
+        onSelectTab={onSelectTab}
+        onToggleDemo={onToggleDemo}
+        onOpenTokenModal={onOpenTokenModal}
+      />
+    )
+
+    const themeBtn = screen.getByRole('button', { name: /Switch to Dark Theme/i })
+    fireEvent.click(themeBtn)
+    expect(localStorage.getItem('repopulse-theme')).toBe('dark')
     expect(onClose).toHaveBeenCalled()
   })
 })

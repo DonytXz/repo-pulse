@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { NetworkNode, NetworkLink } from '../../api/types'
+import { useTheme } from '../../context/ThemeContext'
 
 interface ContributorGraphProps {
   nodes: NetworkNode[]
@@ -28,6 +29,8 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
   highlightedUser,
   onSelectContributor,
 }) => {
+  const { theme } = useTheme()
+
   const chartOption = useMemo(() => {
     const formattedNodes = nodes.map((n) => {
       const isHighlighted = highlightedUser && n.id === highlightedUser
@@ -48,31 +51,33 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
       }
     })
 
+    const isDark = theme === 'dark'
+
     return {
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'item',
-        backgroundColor: '#0f172a',
-        borderColor: '#334155',
-        textStyle: { color: '#f8fafc' },
+        backgroundColor: isDark ? '#0f172a' : '#ffffff',
+        borderColor: isDark ? '#334155' : '#e2e8f0',
+        textStyle: { color: isDark ? '#f8fafc' : '#0f172a' },
         formatter: (params: EChartsNodeParams) => {
           if (params.dataType === 'node') {
             const node = nodes.find((n) => n.id === params.data.id)
             const cat = categories[node?.category ?? 3]?.name || 'Contributor'
             return `
               <div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-                <img src="${node?.avatar}" style="width:28px;height:28px;border-radius:50%;border:1px solid #475569" />
+                <img src="${node?.avatar}" style="width:28px;height:28px;border-radius:50%;border:1px solid ${isDark ? '#475569' : '#cbd5e1'}" />
                 <div>
-                  <div style="font-weight:600;font-size:13px;">${params.data.name}</div>
-                  <div style="font-size:11px;color:#94a3b8;">${cat} &bull; ${params.data.value} contributions</div>
+                  <div style="font-weight:600;font-size:13px;color:${isDark ? '#f8fafc' : '#0f172a'};">${params.data.name}</div>
+                  <div style="font-size:11px;color:${isDark ? '#94a3b8' : '#64748b'};">${cat} &bull; ${params.data.value} contributions</div>
                 </div>
               </div>
             `
           } else if (params.dataType === 'edge') {
             return `
-              <div style="font-size:12px;padding:2px;">
+              <div style="font-size:12px;padding:2px;color:${isDark ? '#f8fafc' : '#0f172a'};">
                 Collaboration link: <b>${params.data.source}</b> &harr; <b>${params.data.target}</b>
-                <div style="color:#94a3b8;font-size:11px;margin-top:2px;">Co-authorship / PR weight: ${params.data.value}</div>
+                <div style="color:${isDark ? '#94a3b8' : '#64748b'};font-size:11px;margin-top:2px;">Co-authorship / PR weight: ${params.data.value}</div>
               </div>
             `
           }
@@ -82,7 +87,7 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
       legend: [
         {
           data: categories.map((a) => a.name),
-          textStyle: { color: '#94a3b8', fontSize: 12 },
+          textStyle: { color: isDark ? '#94a3b8' : '#64748b', fontSize: 12 },
           bottom: 10,
           orient: 'horizontal',
         },
@@ -101,7 +106,8 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
             lineStyle: {
               width: Math.max(1, Math.min(6, l.value * 0.8)),
               curveness: 0.1,
-              opacity: 0.45,
+              opacity: isDark ? 0.45 : 0.6,
+              color: isDark ? '#64748b' : '#94a3b8',
             },
           })),
           categories: categories,
@@ -110,7 +116,7 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
             show: true,
             position: 'right',
             formatter: '{b}',
-            color: '#cbd5e1',
+            color: isDark ? '#cbd5e1' : '#334155',
             fontSize: 11,
           },
           force: {
@@ -129,7 +135,7 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
         },
       ],
     }
-  }, [nodes, links, categories, highlightedUser])
+  }, [nodes, links, categories, highlightedUser, theme])
 
   const onEvents = useMemo(
     () => ({
@@ -143,17 +149,17 @@ export const ContributorGraph: React.FC<ContributorGraphProps> = ({
   )
 
   return (
-    <div className="w-full h-[520px] rounded-2xl bg-slate-900/60 border border-slate-800 p-4 flex flex-col relative overflow-hidden">
+    <div className="w-full h-[520px] rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-4 flex flex-col relative overflow-hidden shadow-xs">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h3 className="text-sm font-semibold text-white tracking-tight">
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight">
             Contributor Collaboration Network
           </h3>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Force-directed graph highlighting maintainers, community clusters, and co-authorship
           </p>
         </div>
-        <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">
+        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono hidden sm:inline">
           Pan &bull; Zoom &bull; Drag nodes &bull; Click to filter
         </span>
       </div>
