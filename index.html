@@ -1,18 +1,34 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>RepoPulse — Open-Source Ecosystem Intelligence & Contributor Network</title>
     <meta name="description" content="In-browser open-source repository telemetry, commit frequency heatmaps, contributor network graph, and pull request velocity analytics." />
-    <meta name="theme-color" content="#020617" />
-    <script type="module" crossorigin src="./assets/index-DwGnhOtE.js"></script>
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('repopulse-theme');
+          if (saved === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-DAaqPez5.js"></script>
     <link rel="modulepreload" crossorigin href="./assets/rolldown-runtime-hePW80VL.js">
     <link rel="modulepreload" crossorigin href="./assets/echarts-C3PKlg_6.js">
-    <link rel="stylesheet" crossorigin href="./assets/index-BOYpMbxz.css">
+    <link rel="stylesheet" crossorigin href="./assets/index-BwjR7dFY.css">
   </head>
-  <body class="bg-slate-950 text-slate-100 antialiased min-h-screen">
+  <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased min-h-screen">
     <div id="root"></div>
   </body>
 </html>
